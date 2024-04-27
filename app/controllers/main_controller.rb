@@ -40,19 +40,15 @@ class MainController < ApplicationController
     faker_rand = Random.new(seed)
     Faker::UniqueGenerator.clear 
     Faker::Config.random = faker_rand 
-    rand = 
     users = []
 
     num_users.times do
-      r = rand(0..10)
-      if r <= error_value
-       
-      
+      if error_value != 0 && rand(0..10) <= error_value
         users << {
           id: session[:i] + 1,
-          name: Faker::Lorem.word, 
-          address: Faker::Lorem.sentence, 
-          phone: Faker::PhoneNumber.cell_phone,  
+          name: Faker::Lorem.word,  
+          address: Faker::Lorem.sentence,  
+          phone: Faker::Alphanumeric.alphanumeric,  
           identifier: Faker::Alphanumeric.alphanumeric(number: 10)
         }
       else
@@ -63,7 +59,7 @@ class MainController < ApplicationController
           phone: Faker::PhoneNumber.phone_number,
           identifier: Faker::Alphanumeric.alphanumeric(number: 10)
         }
-      end
+      end      
       session[:i] += 1  
     end
     users
