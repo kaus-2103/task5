@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scrollable Bootstrap Table</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* Set a fixed height for the table body */
+    .table-body {
+      max-height: 300px; /* Adjust as needed */
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container mt-5">
+  <div class="row">
+    <!-- Region Dropdown -->
+    <div class="col-md-3">
+      <div class="form-group">
+        <label for="region">Region</label>
+        <select class="form-control" id="region">
+          <option value="Poland">Poland</option>
+          <option value="USA">USA</option>
+          <option value="Georgia">Georgia</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Error Slider with Textbox -->
+    <div class="col-md-3">
+      <div class="form-group">
+        <label for="error">Error</label>
+        <input type="range" class="form-control-range" id="error" min="0" max="10">
+        <input type="text" class="form-control" id="errorValue" readonly>
+      </div>
+    </div>
+
+    <!-- Seed Textbox -->
+    <div class="col-md-3">
+      <div class="form-group">
+        <label for="seed">Seed</label>
+        <input type="text" class="form-control" id="seed" readonly>
+        <button type="button" class="btn btn-primary" id="randomseed">Random</button>
+        <button type="button" class="btn btn-primary" id="generateSeed">Generate</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-striped" id="userTable">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Identifier</th>
+          <th scope="col">Name</th>
+          <th scope="col">Address</th>
+          <th scope="col">Phone</th>
+        </tr>
+      </thead>
+      <tbody class="table-body">
+        <!-- User data will be dynamically added here -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Bootstrap JS (optional) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+$(document).ready(function() {
+  // Update error textbox value when slider value changes
+  $('#error').on('input', function() {
+    $('#errorValue').val($(this).val());
+  });
+
+
+  $('#randomseed').click(function() {
+    var seed = Math.floor(Math.random() * 10000000); // Generate random number between 0 and 9999999 (inclusive)
+    $('#seed').val(seed);
+  });
+
+  
+  $('#generateSeed').click(function() {
+    $('#userTable tbody').empty();
+    generateFakeData();
+  });
+
+  function generateFakeData() {
+    var seed = $('#seed').val();
+    var region = $('#region').val();
+    $.ajax({
+      url: '/generate_fake_data',
+      method: 'GET',
+      data: { seed: seed, region: region },
+      success: function(data) {
+        data.forEach(function(user) {
+          $('#userTable tbody').append(`
+            <tr>
+              <td>${user.id}</td>
+              <td>${user.identifier}</td>
+              <td>${user.name}</td>
+              <td>${user.address}</td>
+              <td>${user.phone}</td>
+            </tr>
+          `);
+        });
+        $('#userTable').scrollTop($('#userTable')[0].scrollHeight);
+      },
+      error: function(xhr, status, error) {
+        console.error(error);
+      }
+    });
+  }
+
+  // Function to check if the user has scrolled to the bottom of the page
+  function isAtBottom() {
+    return window.innerHeight + window.scrollY >= document.body.offsetHeight;
+  }
+
+  // Event listener to detect when the user scrolls to the bottom of the page
+  window.addEventListener('scroll', function() {
+    if (isAtBottom()) {
+      generateFakeData();
+    }
+  });
+});
+</script>
+
+</body>
+</html>
