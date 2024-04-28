@@ -30,7 +30,6 @@
       </div>
     </div>
 
-
     <!-- Error Slider/Number Input -->
     <div class="col-md-3">
       <div class="form-group">
@@ -39,10 +38,6 @@
         <input type="number" class="form-control" id="errorValue">
       </div>
     </div>
-    
-
-  
-
 
     <!-- Seed Textbox -->
     <div class="col-md-3">
@@ -54,7 +49,16 @@
         <button type="button" class="btn btn-primary" id="generateSeed">Generate</button>
       </div>
     </div>
+
+    <!-- Export Button -->
+    <div class="col-md-3 text-right">
+      <div class="form-group">
+        <button type="button" class="btn btn-primary" id="exportCSV">Export</button>
+      </div>
+    </div>
   </div>
+</div>
+
 
   <div class="table-responsive">
     <table class="table table-striped" id="userTable">
@@ -109,6 +113,40 @@ $(document).ready(function() {
     $('#userTable tbody').empty();
     generateFakeData({ scroll: false });
   });
+
+  function exportCSV(data) {
+  const headers = Object.keys(data[0]);
+  let csvContent = headers.join(",") + "\n";
+  data.forEach(row => {
+    const values = headers.map(header => {
+      const value = row[header].includes(",") ? `"${row[header]}"` : row[header];
+      return value;
+    });
+    csvContent += values.join(",") + "\n";
+  });
+  const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "generated_data.csv");
+  document.body.appendChild(link);
+  link.click();
+}
+
+
+
+  // Click Event for Export Button
+$('#exportCSV').click(function() {
+  const tableData = $('#userTable tbody tr').map(function() {
+    return {
+      ID: $(this).find('td:eq(0)').text(),
+      Identifier: $(this).find('td:eq(1)').text(),
+      Name: $(this).find('td:eq(2)').text(),
+      Address: $(this).find('td:eq(3)').text(),
+      Phone: $(this).find('td:eq(4)').text()
+    };
+  }).get();
+  exportCSV(tableData);
+});
 
   // Debounce function to delay execution of the passed function
   function debounce(func, delay) {
