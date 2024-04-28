@@ -78,7 +78,7 @@ class MainController < ApplicationController
   end
 
   def modify_string(string, error_value)
-    if rand(0..100) < error_value 
+    if rand(0..error_value) < error_value 
       num_modifications = (error_value / 10).to_i + 1 
       num_modifications.times do
         index = rand(string.length)
