@@ -30,14 +30,18 @@
       </div>
     </div>
 
-    <!-- Error Slider with Textbox -->
-<div class="col-md-3">
-  <div class="form-group">
-    <label for="error">Error</label>
-    <input type="range" class="form-control-range" id="error" min="0" max="10" step="0.1">
-    <input type="text" class="form-control" id="errorValue" readonly>
-  </div>
-</div>
+
+    <!-- Error Slider/Number Input -->
+    <div class="col-md-3">
+      <div class="form-group">
+        <label for="error">Error</label>
+        <input type="range" class="form-control-range" id="error" min="0" max="10" step="0.1">
+        <input type="number" class="form-control" id="errorValue">
+      </div>
+    </div>
+    
+
+  
 
 
     <!-- Seed Textbox -->
@@ -45,6 +49,7 @@
       <div class="form-group">
         <label for="seed">Seed</label>
         <input type="text" class="form-control" id="seed" readonly>
+        <input type="number" class="form-control" id="seed_num">
         <button type="button" class="btn btn-primary" id="randomseed">Random</button>
         <button type="button" class="btn btn-primary" id="generateSeed">Generate</button>
       </div>
@@ -73,11 +78,18 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 <script>
 $(document).ready(function() {
-  // Update error textbox value when slider value changes
+  
   $('#error').on('input', function() {
-    $('#errorValue').val($(this).val());
+    if (!$('#errorValue').is(':focus')) {
+      $('#errorValue').val($(this).val());
+    }
+  });
+
+  $('#errorValue').on('input', function() {
+    $('#error').val($(this).val());
   });
 
   // Generate random seed with up to 7 digits when button is clicked
@@ -85,6 +97,12 @@ $(document).ready(function() {
     var seed = Math.floor(Math.random() * 10000000); 
     $('#seed').val(seed);
   });
+
+  $('#seed_num').on('input', function() {
+  var seed = $(this).val();
+  $('#seed').val(seed);
+});
+
 
   // Generate fake data when "Generate" button is clicked
   $('#generateSeed').click(function() {
@@ -110,9 +128,19 @@ $(document).ready(function() {
 
   // Function to generate fake data
   function generateFakeData(params) {
-    var seed = $('#seed').val();
-    var region = $('#region').val();
-    var errorValue = $('#error').val(); 
+  var seed = $('#seed').val();
+  var region = $('#region').val();
+  var errorValue_1 = parseFloat($('#error').val()); 
+  var errorValue_2 = parseFloat($('#errorValue').val());
+
+  var errorValue;
+  if (errorValue_1 > errorValue_2) {
+    errorValue = errorValue_1;
+  } else {
+    errorValue = errorValue_2;
+  }
+
+    console.log(errorValue);
 
     $.ajax({
       url: '/generate_fake_data',
